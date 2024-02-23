@@ -24,8 +24,8 @@ router.post("/send", async (req, res, next) => {
 
   let authNum = Math.random().toString().substr(2, 6);
   const hashAuth = await bcrypt.hash(authNum, 12);
-  console.log(authNum);
   res.cookie("hashAuth", hashAuth, { maxAge: 300000 }); //유지시간 5분
+
   const mailOptions = {
     from: process.env.GMAIL_USER,
     to: readMail,
@@ -34,7 +34,7 @@ router.post("/send", async (req, res, next) => {
     html:
       "<div style='font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 540px; height: 600px; border-top: 4px solid #348fe2; margin: 100px auto; padding: 30px 0; box-sizing: border-box;'>" +
       "<h1 style='margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;'>" +
-      "<span style='font-size: 15px; margin: 0 0 10px 3px;'>MK_</span><br />" +
+      "<span style='font-size: 15px; margin: 0 0 10px 3px;'>MBOIL</span><br />" +
       "<span style='color: #348fe2;'>인증번호</span> 안내입니다." +
       "</h1>" +
       "<p style='font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;'>" +
@@ -51,34 +51,38 @@ router.post("/send", async (req, res, next) => {
       "<div style='border-top: 1px solid #DDD; padding: 5px;'>" +
       "</div>" +
       "</div>",
-  };
-
-  await smtpTransport.sendMail(mailOptions, (err) => {
-    if (err) {
-        next(err);
-    } else {
-        res.json({ isMailSucssessed: true});
     };
-    smtpTransport.close();
-  });
+
+    smtpTransport.sendMail(mailOptions, (err) => {
+      if (err) {
+        next(err);
+      } else {
+        res.json({ isMailSucssessed: true});
+      };
+      smtpTransport.close();
+    });
 });
 
 // 이메일 인증
 router.post("/cert", async (req, res, next) => {
   const CEA = req.body.authcode;
   const hashAuth = req.cookies.hashAuth;
-
-  try {
-    if (bcrypt.compareSync(CEA, hashAuth)) {
-      res.send({ result: "success" });
-    } else {
-      res.send({ result: "fail" });
-    }
-  } catch (err) {
-    res.send({ result: "fail" });
-    console.error(err);
-    next(err);
+  
+  if(hashAuth){
+    try {
+        if (bcrypt.compareSync(CEA, hashAuth)) {
+          res.send({ result: "success" });
+        } else {
+          res.send({ result: "fail" });
+        }
+      } catch (err) {
+        res.send({ result: "fail" });
+        next(err);
+      }
   }
+  else{
+    res.send({ result: "fail" });
+  } 
 });
 
 module.exports = router;
