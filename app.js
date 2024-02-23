@@ -3,11 +3,35 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const usersRouter = require('./routes/users');
+const drinksRouter = require('./routes/drinks');
+const wishRouter = require('./routes/wish');
+
+// mongoose connect
+require('dotenv').config();
+const mongoose = require('mongoose');
+const {MONGO_HOST} = process.env; // mongodb host .env에서 가져옴
+
+mongoose.connect(MONGO_HOST, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connect Successful'))
+  .catch(err => console.error("DB Connect Error ",err));
 
 var app = express();
+
+// session 미들웨어
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "<my-secret>",
+    resave: true,
+    saveUninitialized: true,
+    cookie:{
+      httpOnly: true,
+      secure: false,
+    }
+  })
+);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,8 +43,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/drinks', drinksRouter);
+app.use('/api/wish', wishRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
