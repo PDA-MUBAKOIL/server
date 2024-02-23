@@ -7,7 +7,7 @@ const wishSchema = new mongoose.Schema({
         require: true,
     },
     drinkId:{
-        type: mongoose.Schema.Types,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Drinks",
         require: true,
     },

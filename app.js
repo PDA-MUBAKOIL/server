@@ -8,11 +8,12 @@ const session = require('express-session');
 const usersRouter = require('./routes/users');
 const drinksRouter = require('./routes/drinks');
 const wishRouter = require('./routes/wish');
+const mailRouter = require('./routes/mail');
 
 // mongoose connect
 require('dotenv').config();
 const mongoose = require('mongoose');
-const {MONGO_HOST} = process.env; // mongodb host .env에서 가져옴
+const MONGO_HOST = process.env.MONGO_HOST; // mongodb host .env에서 가져옴
 
 mongoose.connect(MONGO_HOST, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connect Successful'))
@@ -46,6 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/users', usersRouter);
 app.use('/api/drinks', drinksRouter);
 app.use('/api/wish', wishRouter);
+app.use('/api/mail', mailRouter);
 
 
 // catch 404 and forward to error handler

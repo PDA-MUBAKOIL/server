@@ -81,7 +81,7 @@ router. post('/:drinkId/:userId', async(req,res,next)=>{
 });
 
 /* GET : 나의 wish 전체 조회 */
-router. get('/:userId', authenticate, async(req,res,next)=>{
+router. get('/:userId', async(req,res,next)=>{
     const userId = req.params.userId;
 
     Wish.find({userId:userId}).then(data=>{
