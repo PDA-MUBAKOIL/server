@@ -54,7 +54,9 @@ router.put('/:drinkId/:userId',(req,res,next)=>{
         drinkId: drinkId,
         userId: userId,
     }, {review, imgUrl, isPublic}
-    ).catch(err=>{
+    ).then((data)=>{
+        res.json(data);
+    }).catch((err)=>{
         res.status(404).json({ error: 'Wish does not put' });
         next(err);
     })
@@ -80,7 +82,31 @@ router. post('/:drinkId/:userId', async(req,res,next)=>{
     }) 
 });
 
-/* GET : 나의 wish 전체 조회 */
+/* GET : 나의 위시 전체 조회 */
+router. get('/:userId', async(req,res,next)=>{
+    const userId = req.params.userId;
+
+    Wish.find({userId:userId}).then(data=>{
+        res.json(data);
+    }).catch(err=>{
+        res.status(404).json({ error: 'Wish does not get user' });
+        next(err);
+    })
+});
+
+/* GET : 나의 위시 중 해당 지역 리뷰 조회*/
+router. get('/:userId?region=', async(req,res,next)=>{
+    const userId = req.params.userId;
+
+    Wish.find({userId:userId}).then(data=>{
+        res.json(data);
+    }).catch(err=>{
+        res.status(404).json({ error: 'Wish does not get user' });
+        next(err);
+    })
+});
+
+/* GET : 나의 위시에 있는 술 지역별 개수 조회 */
 router. get('/:userId', async(req,res,next)=>{
     const userId = req.params.userId;
 
