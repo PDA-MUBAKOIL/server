@@ -27,6 +27,12 @@ const drinkSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
+    material:{
+        type: String,
+    },
+    capacity:{
+        type: String,
+    }
 },{
     toJSON: {virtuals:true},
     toObject: {virtuals:true}
