@@ -56,16 +56,4 @@ router.all("/logout", async (req, res, next) => {
   }
 });
 
-/* PUT : 비밀번호 재설정 */
-// router.put("/setpassword", async (req, res, next) => {
-  
-// });
-
-
-/* POST : 이메일 인증 */
-// router. post('/auth',authenticate, async(req,res,next)=>{
-
-  
-// });
-
 module.exports = router;
