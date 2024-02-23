@@ -3,12 +3,35 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session');
 
 const usersRouter = require('./routes/users');
 const drinksRouter = require('./routes/drinks');
 const wishRouter = require('./routes/wish');
 
+// mongoose connect
+require('dotenv').config();
+const mongoose = require('mongoose');
+const {MONGO_HOST} = process.env; // mongodb host .env에서 가져옴
+
+mongoose.connect(MONGO_HOST, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connect Successful'))
+  .catch(err => console.error("DB Connect Error ",err));
+
 var app = express();
+
+// session 미들웨어
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "<my-secret>",
+    resave: true,
+    saveUninitialized: true,
+    cookie:{
+      httpOnly: true,
+      secure: false,
+    }
+  })
+);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

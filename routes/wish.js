@@ -91,3 +91,5 @@ router. get('/:userId', authenticate, async(req,res,next)=>{
         next(err);
     })
 });
+
+module.exports = router;

@@ -32,7 +32,7 @@ const drinkSchema = new mongoose.Schema({
     toObject: {virtuals:true}
 });
 
-drinkSchema.virtual('drinks',{
+drinkSchema.virtual('wishdrink',{
     ref: 'Wish',
     localField: '_id',
     foreignField: 'drinkId'
