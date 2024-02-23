@@ -34,7 +34,7 @@ router.post("/send", async (req, res, next) => {
     html:
       "<div style='font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 540px; height: 600px; border-top: 4px solid #348fe2; margin: 100px auto; padding: 30px 0; box-sizing: border-box;'>" +
       "<h1 style='margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;'>" +
-      "<span style='font-size: 15px; margin: 0 0 10px 3px;'>MK_</span><br />" +
+      "<span style='font-size: 15px; margin: 0 0 10px 3px;'>MBOIL</span><br />" +
       "<span style='color: #348fe2;'>인증번호</span> 안내입니다." +
       "</h1>" +
       "<p style='font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;'>" +
