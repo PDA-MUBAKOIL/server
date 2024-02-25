@@ -13,6 +13,7 @@ const wishSchema = new mongoose.Schema({
     },
     review:{
         type: String,
+        default:null,
     },
     imgUrl:{
         type: String,

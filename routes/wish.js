@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const Wish = require("../model/Wish");
+const Drink = require("../model/Drinks");
 
 /* GET: 해당 술에 대한 전체 리뷰 조회 */
 router.get("/:drinkId", function (req, res, next) {
@@ -86,7 +87,7 @@ router. post('/:drinkId/:userId', async(req,res,next)=>{
 router. get('/:userId', async(req,res,next)=>{
     const userId = req.params.userId;
     if(!req.query.region){
-        Wish.find({userId:userId}).then(data=>{
+        Wish.find({userId:userId}).populate('drinkId').then(data=>{
             res.json(data);
         }).catch(err=>{
             res.status(404).json({ error: 'Wish does not get user' });
@@ -94,7 +95,7 @@ router. get('/:userId', async(req,res,next)=>{
         });
     }
     else{
-        Wish.find({userId:userId, region:req.query.region}).then(data=>{
+        Wish.find({userId:userId, region:req.query.region}).populate('drinkId').then(data=>{
             res.json(data);
         }).catch(err=>{
             res.status(404).json({ error: 'Wish does not get user' });
@@ -132,7 +133,7 @@ router. get('/:userId/regioncnt', async(req,res,next)=>{
             result[regionCount.region] = regionCount.count;
         });
         res.json(result);
-        
+
     } catch (error) {
         console.error('Error:', error);
         next(error);
