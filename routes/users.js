@@ -33,6 +33,7 @@ router.post("/login", async (req, res, next) => {
     });
     res.status(200).json(user);
   } catch (err) {
+    console.error(err);
     res.status(404).json({ result: false });
   }
 });
@@ -60,13 +61,16 @@ router.all("/logout", async (req, res, next) => {
 router.put("/setpassword", async (req, res, next) => {
   const { email, password } = req.body;
 
-  Users.updateOne({
-    email: email,
-  }, {password}).then((data)=>{
-    res.status(200).json(data);
-  }).catch((err)=>{
-    res.status(404).json({ result: false });
-  })
+  // 쿠키있으면 쿠키 삭제
+  if (req.cookies.authToken) {
+    res.cookie("authToken", "", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    });
+  }
+
+  await Users.setpw(email, password);
+  res.status(200).json({result: true});
 });
 
 /* GET : 계정 유무 확인 */
