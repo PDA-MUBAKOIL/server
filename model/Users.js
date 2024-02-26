@@ -60,6 +60,19 @@ usersSchema.statics.login = async function(email, password)
     throw Error("incorrect email");
 };
 
+usersSchema.statics.setpw = async function(email, password)
+{
+    const salt  = await bcrypt.genSalt();
+   
+    try{
+        // pw는 암호화 시켜서 저장
+        const hashedPassword = await bcrypt.hash(password, salt);
+        await this.updateOne({email},{ password:hashedPassword});
+    } catch(err){
+        throw err;
+    }
+};
+
 
 const visibleUser = usersSchema.virtual("visibleUser");
 visibleUser.get(function(value, virtual, doc){
