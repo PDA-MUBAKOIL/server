@@ -28,7 +28,7 @@ pipeline {
     stage('cofing') {
       steps {
         echo 'copy configuration files'
-        dir{'../config'} {
+        dir('../config') {
           sh 'cp .env-express ../server/.env'
         }
         sh 'pwd'
