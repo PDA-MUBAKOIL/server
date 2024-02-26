@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
+const cors = require('cors');
 
 const usersRouter = require('./routes/users');
 const drinksRouter = require('./routes/drinks');
@@ -20,6 +21,11 @@ mongoose.connect(MONGO_HOST, { useNewUrlParser: true, useUnifiedTopology: true }
   .catch(err => console.error("DB Connect Error ",err));
 
 var app = express();
+
+const corsOptions = {
+  origin: ['http://localhost:3000','http://172.16.1.72:3000'],
+};
+app.use(cors(corsOptions));
 
 // session 미들웨어
 app.use(

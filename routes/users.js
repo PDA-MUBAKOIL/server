@@ -12,7 +12,7 @@ router.post("/signup", async (req, res, next) => {
     res.status(200).json(newUser);
   } catch (err) {
     console.error(err);
-    res.status(404).json({ error: "signup error" });
+    res.status(404).json({ result: false });
   }
 });
 

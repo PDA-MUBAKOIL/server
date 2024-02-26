@@ -17,6 +17,7 @@ const wishSchema = new mongoose.Schema({
     },
     imgUrl:{
         type: String,
+        default:null,
     },
     isPublic:{
         type: Boolean,
