@@ -55,9 +55,9 @@ router.post("/send", async (req, res, next) => {
 
     smtpTransport.sendMail(mailOptions, (err) => {
       if (err) {
-        next(err);
+        res.json({ result: false});
       } else {
-        res.json({ isMailSucssessed: true});
+        res.json({ result: true});
       };
       smtpTransport.close();
     });
@@ -71,17 +71,16 @@ router.post("/cert", async (req, res, next) => {
   if(hashAuth){
     try {
         if (bcrypt.compareSync(CEA, hashAuth)) {
-          res.send({ result: "success" });
+          res.json({ result: true });
         } else {
-          res.send({ result: "fail" });
+          res.json({ result: false });
         }
       } catch (err) {
-        res.send({ result: "fail" });
-        next(err);
+        res.json({ result: false });
       }
   }
   else{
-    res.send({ result: "fail" });
+    res.json({ result: false });
   } 
 });
 

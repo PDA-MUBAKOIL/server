@@ -9,7 +9,6 @@ router.get("/", function (req, res, next) {
     res.status(200).json(data);
   }).catch((err) => {
     res.status(404).json({ error: 'Do not get drink list' });
-    next(err);
   });
 });
 
@@ -21,7 +20,6 @@ router.get("/:drinkId", function (req, res, next) {
     res.status(200).json(data);
   }).catch((err) => {
     res.status(404).json({ error: 'Do not get drink list' });
-    next(err);
   });
 });
 
