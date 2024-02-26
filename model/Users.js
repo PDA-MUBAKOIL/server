@@ -60,11 +60,6 @@ usersSchema.statics.login = async function(email, password)
     throw Error("incorrect email");
 };
 
-usersSchema.statics.ismail = async function(email)
-{
-    const user = await this.findOne({email});
-    return user.email;
-};
 
 const visibleUser = usersSchema.virtual("visibleUser");
 visibleUser.get(function(value, virtual, doc){

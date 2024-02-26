@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const Wish = require("../model/Wish");
+const Drink = require("../model/Drinks");
 
 /* GET: 해당 술에 대한 전체 리뷰 조회 */
 router.get("/:drinkId", function (req, res, next) {
@@ -82,16 +83,60 @@ router. post('/:drinkId/:userId', async(req,res,next)=>{
     }) 
 });
 
-/* GET : 나의 위시 전체 조회 */
+/* GET : 나의 위시 전체 조회 + 해당 지역별 위시 조회 */
 router. get('/:userId', async(req,res,next)=>{
     const userId = req.params.userId;
-
-    Wish.find({userId:userId}).then(data=>{
-        res.json(data);
-    }).catch(err=>{
-        res.status(404).json({ error: 'Wish does not get user' });
-        next(err);
-    })
+    if(!req.query.region){
+        Wish.find({userId:userId}).populate('drinkId').then(data=>{
+            res.json(data);
+        }).catch(err=>{
+            res.status(404).json({ error: 'Wish does not get user' });
+            next(err);
+        });
+    }
+    else{
+        Wish.find({userId:userId, region:req.query.region}).populate('drinkId').then(data=>{
+            res.json(data);
+        }).catch(err=>{
+            res.status(404).json({ error: 'Wish does not get user' });
+            next(err);
+        });
+    }
 });
 
+/* GET : 나의 위시에 있는 술 지역별 개수 조회 */
+router. get('/:userId/regioncnt', async(req,res,next)=>{
+    try {
+        const userId = req.params.userId;
+
+        // Use your ORM or database library to query the database
+        const regionCounts = await Drink.aggregate([
+            { $match: { userId: userId } },
+            {
+                $group: {
+                    _id: '$region',
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the default MongoDB _id field
+                    region: '$_id',
+                    count: 1
+                }
+            }
+        ]);
+
+        // Construct the result object directly
+        const result = {};
+        regionCounts.forEach((regionCount) => {
+            result[regionCount.region] = regionCount.count;
+        });
+        res.json(result);
+
+    } catch (error) {
+        console.error('Error:', error);
+        next(error);
+    }
+});
 module.exports = router;

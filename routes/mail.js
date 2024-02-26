@@ -56,7 +56,6 @@ router.post("/send", async (req, res, next) => {
     smtpTransport.sendMail(mailOptions, (err) => {
       if (err) {
         res.json({ result: false});
-        next(err);
       } else {
         res.json({ result: true});
       };
@@ -76,14 +75,13 @@ router.post("/cert", async (req, res, next) => {
         } else {
           res.json({ result: false });
         }
-      } catch (err) {
+     } catch (err) {
         res.json({ result: false });
-        next(err);
-      }
+     }
   }
   else{
-    res.send({ result: false });
-  } 
+    res.json({ result: false });
+  }
 });
 
 module.exports = router;

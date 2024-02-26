@@ -6,7 +6,7 @@ const drinkSchema = new mongoose.Schema({
         require: true,
     },
     percent:{
-        type: Number,
+        type: String,
         require: true,
     },
     imgUrl:{
