@@ -1,48 +1,50 @@
 var express = require("express");
 var router = express.Router();
 const Wish = require("../model/Wish");
-//const Drinks = require("../model/Drinks");
+const Drinks = require("../model/Drinks");
 
-// /* GET : 나의 위시에 있는 술 지역별 개수 조회 */
-// router. get('/:userId/regioncnt', async(req,res,next)=>{
-//     try {
-//         const userId = req.params.userId;
+/* GET : 나의 위시에 있는 술 지역별 개수 조회 */
+router. get('/regioncnt', async function (req,res,next){
+    try {
+        const userId = req.body.userId;
+        const region = req.query.region;
 
-//         // Use your ORM or database library to query the database
-//         const regionCounts = await Drinks.aggregate([
-//             { $match: { userId: userId } },
-//             {
-//                 $group: {
-//                     _id: '$region',
-//                     count: { $sum: 1 }
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     _id: 0, // Exclude the default MongoDB _id field
-//                     region: '$_id',
-//                     count: 1
-//                 }
-//             }
-//         ]);
+        // Define the main query to filter by userId
+        const query = { userId: userId };
 
-//         // Construct the result object directly
-//         const result = {};
-//         regionCounts.forEach((regionCount) => {
-//             result[regionCount.region] = regionCount.count;
-//         });
-//         res.json(result);
+        // Define a subquery to match the region if provided
+        const matchSubQuery = {};
+        if (region) {
+            matchSubQuery['region'] = region;
+        }
 
-//     } catch (error) {
-//         console.error(error);
-//         //res.json({ result: false });
-//     }
-// });
+        // Perform the search with populate and match
+        const wishes = await Wish.find(query).populate({
+            path: "drinkId",
+            match: matchSubQuery,
+        });
+
+        // Filter out null values from populated field
+        const filteredWishes = wishes.filter(wish => wish.drinkId !== null);
+
+        // Count wishes for each region
+        const regionCounts = filteredWishes.reduce((counts, wish) => {
+            const wishRegion = wish.drinkId.region;
+            counts[wishRegion] = (counts[wishRegion] || 0) + 1;
+            return counts;
+        }, {});
+
+        res.status(200).json({ regionCount: regionCounts });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ result: false });
+    }
+});
 
 /* GET : 나의 위시 전체 조회 + 해당 지역별 위시 조회 */
-router.get("/:userId", async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   try {
-    const userId = req.params.userId;
+    const userId = req.body.userId;
     const region = req.query.region;
 
     const query = { userId: userId };
@@ -78,9 +80,9 @@ router.get("/review/:drinkId", function (req, res, next) {
 });
 
 /* GET : 해당 술에 대한 나의 리뷰 조회 */
-router.get("/:drinkId/:userId", (req, res, next) => {
+router.get("/:drinkId", (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.params.userId;
+  const userId = req.body.userId;
 
   Wish.findOne({
     drinkId: drinkId,
@@ -99,7 +101,7 @@ router.get("/:drinkId/:userId", (req, res, next) => {
 /* DELETE : 해당 술에 대한 나의 리뷰 삭제 */
 router.delete("/:drinkId/:userId", async (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.params.userId;
+  const userId = req.body.userId;
 
   Wish.deleteOne({
     userId: userId,
@@ -117,7 +119,7 @@ router.delete("/:drinkId/:userId", async (req, res, next) => {
 /* PUT : 해당 술에 대한 나의 리뷰 수정 */
 router.put("/:drinkId/:userId", (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.params.userId;
+  const userId = req.body.userId;
   const { review, imgUrl, isPublic } = req.body;
 
   Wish.updateOne(
@@ -140,9 +142,9 @@ router.put("/:drinkId/:userId", (req, res, next) => {
 });
 
 /* POST : 해당 술에 대한 나의 리뷰 생성 */
-router.post("/:drinkId/:userId", async (req, res, next) => {
+router.post("/:drinkId", async (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.params.userId;
+  const userId = req.body.userId;
   const { review, imgUrl, isPublic } = req.body;
 
   Wish.create({
