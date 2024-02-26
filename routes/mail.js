@@ -75,13 +75,13 @@ router.post("/cert", async (req, res, next) => {
         } else {
           res.json({ result: false });
         }
-      } catch (err) {
+     } catch (err) {
         res.json({ result: false });
-      }
+     }
   }
   else{
     res.json({ result: false });
-  } 
+  }
 });
 
 module.exports = router;
