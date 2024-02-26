@@ -30,7 +30,7 @@ pipeline {
         echo 'copy configuration files'
         sh 'pwd'
         
-        sh 'cp /var/jenkins_home/workspace/config/.env.express ./server/.env'
+        sh 'cp /var/jenkins_home/workspace/config/.env.express .env'
       }
     }
     stage('build-express') {
