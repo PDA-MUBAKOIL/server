@@ -28,10 +28,9 @@ pipeline {
     stage('cofing') {
       steps {
         echo 'copy configuration files'
-        dir('../config') {
-          sh 'cp .env-express ../server/.env'
-        }
         sh 'pwd'
+        
+        sh 'cp /var/jenkins_home/workspace/config/.env.express ./server/.env'
       }
     }
     stage('build-express') {
