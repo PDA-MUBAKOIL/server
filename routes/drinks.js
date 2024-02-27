@@ -7,7 +7,7 @@ const Brewer = require("../model/Brewer");
 /* GET : search */
 router.get("/search", async function (req, res, next) {
   try {
-    const { tag, percent, name } = req.query;
+    const { tag, percent, name, region } = req.query;
     
     // Create a query object based on the provided parameters
     const query = {};
@@ -24,6 +24,9 @@ router.get("/search", async function (req, res, next) {
     if (name) {
       // 이름 부분 검색을 위해 정규 표현식 사용
       query.name = { $regex: name };
+    }
+    if(region){
+      query.region = region;
     }
     
     // Perform the search
