@@ -8,6 +8,8 @@ void setBuildStatus(String message, String state) {
   ]);
 }
 
+def EXPRESS_IMAGE_ID = ''
+
 pipeline {
   agent any
 	post {
@@ -35,6 +37,10 @@ pipeline {
     }
     stage('build-express') {
       steps {
+        script {
+          EXPRESS_IMAGE_ID = sh(returnStdout: true, script: 'docker images | grep react | awk \'{print $3\'}').trim()
+          echo "prev image id : ${REACT_IMAGE_ID}"
+        }
         echo 'move directory'
         sh 'pwd'
         sh 'docker build -t express .'
@@ -60,6 +66,12 @@ pipeline {
       steps {
         echo 'run docker container'
         sh 'docker run --name express -d -p 8080:3001 --restart=on-failure express'
+      }
+    }
+    stage('clean') {
+      steps {
+        echo "Clean express image ${EXPRESS_IMAGE_ID}"
+        sh "docker rmi ${EXPRESS_IMAGE_ID}"
       }
     }
   }
