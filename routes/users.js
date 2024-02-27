@@ -58,7 +58,7 @@ async function authenticate(req, res, next) {
  * 프론트에서 토큰 삭제해야함
 */
 router.all("/logout",authenticate, async (req, res, next) => {
-  res.status(200).json({ message: "로그인 완료" });
+  res.status(200).json({ message: "로그아웃 완료" });
 });
 
 /* PUT : 비밀번호 재설정 */
