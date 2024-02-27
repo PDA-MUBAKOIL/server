@@ -39,9 +39,9 @@ async function authenticate(req, res, next) {
 }
 
 /* GET : 나의 위시에 있는 술 지역별 개수 조회 */
-router. get('/regioncnt', authenticate, async function (req,res,next){
+router. get('/regioncnt', async function (req,res,next){
     try {
-        const userId = req.user._id;
+        const userId = req.body.userId;
         const region = req.query.region;
 
         // Define the main query to filter by userId
@@ -63,24 +63,32 @@ router. get('/regioncnt', authenticate, async function (req,res,next){
         const filteredWishes = wishes.filter(wish => wish.drinkId !== null);
 
         // Count wishes for each region
-        const regionCounts = filteredWishes.reduce((counts, wish) => {
+        const regionCounts = {};
+        // Initialize regionCounts with 0 for all specified regions
+        const specifiedRegions = ["서울", "대전", "대구", "부산", "울산", "광주", "인천",
+            "세종", "경기","충북","충남","강원","전북","전남","경북","경남","제주"];
+        specifiedRegions.forEach(region => {
+            regionCounts[region] = 0;
+        });
+
+
+        // Count wishes for each region
+        filteredWishes.forEach(wish => {
             const wishRegion = wish.drinkId.region;
-            counts[wishRegion] = (counts[wishRegion] || 0) + 1;
-            return counts;
-        }, {});
+            regionCounts[wishRegion] += 1;
+        });
 
         res.status(200).json({ regionCount: regionCounts });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ result: false });
+        res.status(500).json({ result: false, message: "region count error" });
     }
 });
 
 /* GET : 나의 위시 전체 조회 + 해당 지역별 위시 조회 */
-router.get("/", authenticate, async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   try {
-    const userId = req.user._id;
-    console.log(req.user);
+    const userId = req.body.userId;
     const region = req.query.region;
 
     const query = { userId: userId };
@@ -103,9 +111,9 @@ router.get("/", authenticate, async function (req, res, next) {
 
 
 /* GET : 해당 술에 대한 나의 리뷰 조회 */
-router.get("/:drinkId",authenticate, (req, res, next) => {
+router.get("/:drinkId", (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.user._id;
+  const userId = req.body.userId;
 
   Wish.findOne({
     drinkId: drinkId,
@@ -119,9 +127,9 @@ router.get("/:drinkId",authenticate, (req, res, next) => {
 });
 
 /* DELETE : 해당 술에 대한 나의 리뷰 삭제 */
-router.delete("/:drinkId", authenticate, async (req, res, next) => {
+router.delete("/:drinkId", async (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.user._id;
+  const userId = req.body.userId;
 
   Wish.deleteOne({
     userId: userId,
@@ -137,9 +145,9 @@ router.delete("/:drinkId", authenticate, async (req, res, next) => {
 });
 
 /* PUT : 해당 술에 대한 나의 리뷰 수정 */
-router.put("/:drinkId", authenticate, (req, res, next) => {
+router.put("/:drinkId", (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.user._id;
+  const userId = req.body.userId;
   const { review, imgUrl, isPublic } = req.body;
 
   Wish.updateOne(
@@ -161,9 +169,9 @@ router.put("/:drinkId", authenticate, (req, res, next) => {
 });
 
 /* POST : 해당 술에 대한 나의 리뷰 생성 */
-router.post("/:drinkId", authenticate, async (req, res, next) => {
+router.post("/:drinkId", async (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.user._id;
+  const userId = req.body.userId;
   const { review, imgUrl, isPublic } = req.body;
 
   Wish.create({
