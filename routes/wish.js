@@ -186,4 +186,22 @@ router.post("/:drinkId", authenticate, async (req, res, next) => {
     });
 });
 
+router.get("/iswish/:drinkId", authenticate, async (req, res, next) => {
+    const drinkId = req.params.drinkId;
+    const userId = req.user._id;
+
+    await Wish.findOne({
+        drinkId: drinkId,
+        userId: userId,
+    }).then((data)=>{
+        if(data){
+            res.json({result: true});
+        }
+        else{
+            res.json({result: false});
+        }
+    }).catch(() => {
+        res.json({result: false, message: "not find wish" });
+    })
+});
 module.exports = router;
