@@ -55,6 +55,7 @@ router.post("/send", async (req, res, next) => {
 
     smtpTransport.sendMail(mailOptions, (err) => {
       if (err) {
+        console.log(err);
         res.json({ result: false});
       } else {
         res.json({ result: true});
@@ -73,14 +74,14 @@ router.post("/cert", async (req, res, next) => {
         if (bcrypt.compareSync(CEA, hashAuth)) {
           res.json({ result: true });
         } else {
-          res.json({ result: false });
+            res.json({ result: false, message: "인증번호 오류" });
         }
-     } catch (err) {
-        res.json({ result: false });
-     }
+    } catch (err) {
+        res.json({ result: false, message: "요청 오류"});
+    }
   }
   else{
-    res.json({ result: false });
+    res.json({ result: false, message: "hashAuth 없음" });
   }
 });
 
