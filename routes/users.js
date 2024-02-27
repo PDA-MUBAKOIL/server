@@ -24,8 +24,6 @@ router.post("/login", async (req, res, next) => {
     const tokenMaxAge = 60 * 60 * 24 * 3;
     const token = createToken(user, tokenMaxAge);
 
-    user.token = token;
-
     // body로 token 보내기
     res.status(200).json({user, token});
   } catch (err) {
