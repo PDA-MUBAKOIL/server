@@ -59,7 +59,7 @@ pipeline {
     stage('deploy') {
       steps {
         echo 'run docker container'
-        sh 'docker run --name express -d -p 8080:3001 express'
+        sh 'docker run --name express -d -p 8080:3001 --restart=on-failure express'
       }
     }
   }
