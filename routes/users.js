@@ -64,12 +64,12 @@ router.all("/logout",authenticate, async (req, res, next) => {
 /* PUT : 비밀번호 재설정 */
 router.put("/setpassword", async (req, res, next) => {
   const { email, password } = req.body;
-    await Users.setpw(email, password).then(()=>{
-      res.status(200).json({ result: true, message: "비밀번호 변경 완료"});
-    }).catch(()=>{
-      res.status(400).json({ result: false, message: "비밀번호 변경 오류" });
-    })
-  });
+  await Users.setpw(email, password).then(()=>{
+    res.status(200).json({ result: true, message: "비밀번호 변경 완료"});
+  }).catch(()=>{
+    res.status(400).json({ result: false, message: "비밀번호 변경 오류" });
+  })
+});
 
 /* GET : 계정 유무 확인 */
 router.get("/:email", async (req, res, next) => {
