@@ -38,8 +38,8 @@ pipeline {
     stage('build-express') {
       steps {
         script {
-          EXPRESS_IMAGE_ID = sh(returnStdout: true, script: 'docker images | grep react | awk \'{print $3\'}').trim()
-          echo "prev image id : ${REACT_IMAGE_ID}"
+          EXPRESS_IMAGE_ID = sh(returnStdout: true, script: 'docker images | grep express | awk \'{print $3\'}').trim()
+          echo "prev image id : ${EXPRESS_IMAGE_ID}"
         }
         echo 'move directory'
         sh 'pwd'
