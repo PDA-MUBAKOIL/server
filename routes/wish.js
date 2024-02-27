@@ -116,6 +116,9 @@ router.get("/", authenticate, async function (req, res, next) {
     const wishes = await Wish.find(query).populate({
       path: "drinkId",
       match: populatedMatched,
+      populate: {
+        path: "brewerId", 
+      },
     });
     const filteredWishes = wishes.filter((wish) => wish.drinkId !== null);
     res.status(200).json(filteredWishes);
