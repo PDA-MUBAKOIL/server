@@ -26,34 +26,35 @@ router.post("/login", async (req, res, next) => {
 
     user.token = token;
 
-    // 쿠키에 token 저장
-    res.cookie("authToken", token, {
-      httpOnly: true,
-      maxAge: tokenMaxAge * 1000,
-    });
-    res.status(200).json(user);
+    // body로 token 보내기
+    res.status(200).json({user, token});
   } catch (err) {
     console.error(err);
-    res.status(404).json({ result: false });
+    res.status(404).json({ result: false, message: "로그인 오류" });
   }
 });
 
 /* POST : 로그아웃(logout) */
 router.all("/logout", async (req, res, next) => {
   try {
-    if (req.cookies.authToken) {
-      // 쿠키 삭제
-      res.cookie("authToken", "", {
-        httpOnly: true,
-        expires: new Date(Date.now()),
-      });
-      res.status(200).json({ result: true });
-    }
-    else{
-      res.status(404).json({ result: false });
+    let headerToken =  req.headers.authorization;
+    
+    if (headerToken) {
+      const token = headerToken.split(" ")[1];
+
+      // 무효화된 토큰인지 확인
+      if (invalidTokens.has(token)) {
+        res.status(401).json({ result: false, message: "이미 로그아웃된 토큰입니다." });
+      } else {
+        // 토큰을 무효화 처리
+        invalidTokens.add(token);
+        res.status(200).json({ result: true });
+      }
+    } else {
+      res.status(400).json({ result: false, message: "로그아웃 오류: 토큰이 없습니다." });
     }
   } catch (err) {
-    res.status(404).json({ result: false });
+    res.status(500).json({ result: false, message: "로그아웃 오류" });
   }
 });
 
@@ -61,16 +62,26 @@ router.all("/logout", async (req, res, next) => {
 router.put("/setpassword", async (req, res, next) => {
   const { email, password } = req.body;
 
-  // 쿠키있으면 쿠키 삭제
-  if (req.cookies.authToken) {
-    res.cookie("authToken", "", {
-      httpOnly: true,
-      expires: new Date(Date.now()),
-    });
-  }
+  try {
+    let headerToken =  req.headers.authorization;
+    
+    if (headerToken) {
+      const token = headerToken.split(" ")[1];
 
-  await Users.setpw(email, password);
-  res.status(200).json({result: true});
+      // 무효화된 토큰인지 확인
+      if (invalidTokens.has(token)) {
+        res.status(401).json({ result: false, message: "이미 무효화된 토큰." });
+      } else {
+        invalidTokens.add(token); // token 무효화 처리하고
+        await Users.setpw(email, password); // 비밀번호 재설정
+        res.status(200).json({ result: true });
+      }
+    } else {
+      res.status(400).json({ result: false, message: "토큰이 없습니다." });
+    }
+  } catch (err) {
+    res.status(500).json({ result: false, message: "setpw 오류" });
+  }
 });
 
 /* GET : 계정 유무 확인 */
