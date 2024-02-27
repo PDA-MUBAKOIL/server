@@ -17,22 +17,25 @@ router.get("/review/:drinkId", function (req, res, next) {
 // authenticate 미들웨어 생성
 async function authenticate(req, res, next) {
     // 토큰을 request에서 꺼내서 유저 정보 확인
-    let token = req.cookies.authToken;
-    let headerToken = req.headers.authorization;
+    try {
 
-    if (!token && headerToken) {
-      token = headerToken.split(" ")[1];
-    }
+        let token = req.headers.authorization;
+        if (token) {
+            token = token.split(" ")[1];
+        }
   
-    const user = verifyToken(token);
-    req.user = user;
-  
-    // 유저 정보 없으면 error 발생
-    if (!user) {
-        res.status(401).json({ result: false, message: "Authorization Failed" });
-        
+        const user = verifyToken(token);
+        req.user = user;
+        // 유저 정보 없으면 error 발생
+        if (!user) {
+            res.status(401).json({ result: false, message: "Authorization Failed" });  
+        }
+        next(); //req.user가 넘겨짐
+
+    } catch (error) {
+        // 예외가 발생한 경우 처리할 내용
+        res.json({ result: false, message:"not login state"});
     }
-    next(); //req.user가 넘겨짐
 }
 
 /* GET : 나의 위시에 있는 술 지역별 개수 조회 */
