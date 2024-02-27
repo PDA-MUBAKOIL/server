@@ -1,12 +1,44 @@
 var express = require("express");
 var router = express.Router();
 const Wish = require("../model/Wish");
-const Drinks = require("../model/Drinks");
+const { verifyToken } = require("../utils/auth");
+
+/* GET: 해당 술에 대한 전체 리뷰 조회 */
+router.get("/review/:drinkId", function (req, res, next) {
+    const drinkId = req.params.drinkId;
+    Wish.find({ drinkId: drinkId }).then((data) => {
+        res.json(data);
+    }).catch((err) => {
+        console.error(err);
+        res.status(404).json({ result: false });
+    });
+});  
+
+// authenticate 미들웨어 생성
+async function authenticate(req, res, next) {
+    // 토큰을 request에서 꺼내서 유저 정보 확인
+    let token = req.cookies.authToken;
+    let headerToken = req.headers.authorization;
+
+    if (!token && headerToken) {
+      token = headerToken.split(" ")[1];
+    }
+  
+    const user = verifyToken(token);
+    req.user = user;
+  
+    // 유저 정보 없으면 error 발생
+    if (!user) {
+        res.status(401).json({ result: false, message: "Authorization Failed" });
+        
+    }
+    next(); //req.user가 넘겨짐
+}
 
 /* GET : 나의 위시에 있는 술 지역별 개수 조회 */
-router. get('/regioncnt', async function (req,res,next){
+router. get('/regioncnt', authenticate, async function (req,res,next){
     try {
-        const userId = req.body.userId;
+        const userId = req.user._id;
         const region = req.query.region;
 
         // Define the main query to filter by userId
@@ -42,9 +74,10 @@ router. get('/regioncnt', async function (req,res,next){
 });
 
 /* GET : 나의 위시 전체 조회 + 해당 지역별 위시 조회 */
-router.get("/", async function (req, res, next) {
+router.get("/", authenticate, async function (req, res, next) {
   try {
-    const userId = req.body.userId;
+    const userId = req.user._id;
+    console.log(req.user);
     const region = req.query.region;
 
     const query = { userId: userId };
@@ -65,43 +98,27 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-/* GET: 해당 술에 대한 전체 리뷰 조회 */
-router.get("/review/:drinkId", function (req, res, next) {
-  const drinkId = req.params.drinkId;
-  Wish.find({ drinkId: drinkId })
-    .populate("drinkId")
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => {
-      console.error(err);
-      //res.status(404).json({ result: false });
-    });
-});
 
 /* GET : 해당 술에 대한 나의 리뷰 조회 */
-router.get("/:drinkId", (req, res, next) => {
+router.get("/:drinkId",authenticate, (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.body.userId;
+  const userId = req.user._id;
 
   Wish.findOne({
     drinkId: drinkId,
     userId: userId,
-  })
-    .populate("drinkId")
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.json({ result: false });
-    });
+  }).populate("drinkId").then((data) => {
+    res.json(data);
+  }).catch((err) => {
+    console.error(err);
+    res.json({ result: false });
+  });
 });
 
 /* DELETE : 해당 술에 대한 나의 리뷰 삭제 */
-router.delete("/:drinkId/:userId", async (req, res, next) => {
+router.delete("/:drinkId", authenticate, async (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.body.userId;
+  const userId = req.user._id;
 
   Wish.deleteOne({
     userId: userId,
@@ -117,9 +134,9 @@ router.delete("/:drinkId/:userId", async (req, res, next) => {
 });
 
 /* PUT : 해당 술에 대한 나의 리뷰 수정 */
-router.put("/:drinkId/:userId", (req, res, next) => {
+router.put("/:drinkId", authenticate, (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.body.userId;
+  const userId = req.user._id;
   const { review, imgUrl, isPublic } = req.body;
 
   Wish.updateOne(
@@ -137,14 +154,13 @@ router.put("/:drinkId/:userId", (req, res, next) => {
     })
     .catch((err) => {
       res.json({ result: false });
-      next(err);
     });
 });
 
 /* POST : 해당 술에 대한 나의 리뷰 생성 */
-router.post("/:drinkId", async (req, res, next) => {
+router.post("/:drinkId", authenticate, async (req, res, next) => {
   const drinkId = req.params.drinkId;
-  const userId = req.body.userId;
+  const userId = req.user._id;
   const { review, imgUrl, isPublic } = req.body;
 
   Wish.create({
@@ -159,7 +175,6 @@ router.post("/:drinkId", async (req, res, next) => {
     })
     .catch((err) => {
       res.json({ result: false });
-      next(err);
     });
 });
 
