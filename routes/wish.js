@@ -6,7 +6,7 @@ const { verifyToken } = require("../utils/auth");
 /* GET: 해당 술에 대한 전체 리뷰 조회 */
 router.get("/review/:drinkId", function (req, res, next) {
   const drinkId = req.params.drinkId;
-  Wish.find({ drinkId: drinkId })
+  Wish.find({ drinkId: drinkId }).populate("userId")
     .then((data) => {
       res.json(data);
     })
