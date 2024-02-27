@@ -12,7 +12,7 @@ router.get("/review/:drinkId", function (req, res, next) {
     })
     .catch((err) => {
       console.error(err);
-      res.status(404).json({ result: false });
+      res.status(404).json({ result: false, message: "do not find reviews about drink"});
     });
 });
 
@@ -121,7 +121,7 @@ router.get("/", authenticate, async function (req, res, next) {
     res.status(200).json(filteredWishes);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ result: false });
+    res.status(500).json({ result: false, message: "not find my wish grouping region" });
   }
 });
 
@@ -140,7 +140,7 @@ router.get("/:drinkId", authenticate, async (req, res, next) => {
     })
     .catch((err) => {
       console.error(err);
-      res.json({ result: false });
+      res.json({ result: false, message: "not find my wish about this drink" });
     });
 });
 
@@ -153,12 +153,11 @@ router.delete("/:drinkId", authenticate, async (req, res, next) => {
     userId: userId,
     drinkId: drinkId,
   })
-    .then((data) => {
-      res.json({ result: true });
+    .then(() => {
+      res.json({ result: true, message: "delete review success" });
     })
-    .catch((err) => {
-      res.json({ result: false });
-      next(err);
+    .catch(() => {
+      res.json({ result: false, message: "delete review error" });
     });
 });
 
@@ -183,8 +182,8 @@ router.put("/:drinkId", authenticate, async (req, res, next) => {
     .then((updatedData) => {
       res.json(updatedData);
     })
-    .catch((err) => {
-      res.json({ result: false });
+    .catch(() => {
+      res.json({ result: false, message: "do not edit my reviews" });
     });
 });
 
@@ -233,9 +232,7 @@ router.get("/iswish/:drinkId", authenticate, async (req, res, next) => {
     else {
         res.json({ result: false });
     }
-  }).catch(() => {
-    res.json({ result: false, message: "not find wish" });
-  });
+  })
 });
 
 module.exports = router;
