@@ -23,7 +23,7 @@ mongoose.connect(MONGO_HOST, { useNewUrlParser: true, useUnifiedTopology: true }
 var app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:3000','http://172.16.1.72:3000'],
+  origin: ['https://localhost','http://localhost:3000'],
 };
 app.use(cors(corsOptions));
 
