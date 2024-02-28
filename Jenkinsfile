@@ -48,7 +48,7 @@ pipeline {
     }
     stage('down') {
       environment {
-        EXPRESS_CONTAINER_ID = sh(returnStdout: true, script: 'docker ps -a | grep express | awk \'{print $1\'}').trim()
+        EXPRESS_CONTAINER_ID = sh(returnStdout: true, script: 'docker ps -a | grep express-prod | awk \'{print $1\'}').trim()
       }
       steps {
         script {
@@ -65,7 +65,7 @@ pipeline {
     stage('deploy') {
       steps {
         echo 'run docker container'
-        sh 'docker run --name express-prod -d -p 8080:3001 --restart=on-failure network=mubakoil-prod express'
+        sh 'docker run --name express-prod -d -p 8080:3001 --restart=on-failure --network=mubakoil-prod express'
       }
     }
     stage('clean') {
