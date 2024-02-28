@@ -65,13 +65,15 @@ pipeline {
     stage('deploy') {
       steps {
         echo 'run docker container'
-        sh 'docker run --name express -d -p 8080:3001 --restart=on-failure express'
+        sh 'docker run --name express-prod -d -p 8080:3001 --restart=on-failure network=mubakoil-prod express'
       }
     }
     stage('clean') {
       steps {
         echo "Clean express image ${EXPRESS_IMAGE_ID}"
         sh "docker rmi ${EXPRESS_IMAGE_ID}"
+        // dangling images for multi stage build
+        sh "docker image prune --force"
       }
     }
   }
