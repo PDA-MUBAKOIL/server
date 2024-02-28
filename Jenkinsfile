@@ -72,6 +72,8 @@ pipeline {
       steps {
         echo "Clean express image ${EXPRESS_IMAGE_ID}"
         sh "docker rmi ${EXPRESS_IMAGE_ID}"
+        // dangling images for multi stage build
+        sh "docker image prune --force"
       }
     }
   }
