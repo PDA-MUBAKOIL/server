@@ -66,7 +66,7 @@ router.post("/send", async (req, res, next) => {
 
 // 이메일 인증
 router.post("/cert", async (req, res, next) => {
-  const CEA = req.body.authcode;
+  const CEA = req.body.authcode.toString();
   const hashAuth = req.cookies.hashAuth;
   
   if(hashAuth){
