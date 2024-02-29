@@ -66,12 +66,15 @@ router.post("/send", async (req, res, next) => {
 
 // 이메일 인증
 router.post("/cert", async (req, res, next) => {
-  const CEA = req.body.authcode.toString();
+  const CEA = req.body.authcode;
+  const S_CEA = CEA.toString();
+  console.log(S_CEA,typeof(S_CEA));
+
   const hashAuth = req.cookies.hashAuth;
   
   if(hashAuth){
     try {
-        if (bcrypt.compareSync(CEA, hashAuth)) {
+        if (bcrypt.compareSync(S_CEA, hashAuth)) {
           res.json({ result: true });
         } else {
             res.json({ result: false, message: "인증번호 오류" });
