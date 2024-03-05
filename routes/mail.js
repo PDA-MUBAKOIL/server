@@ -6,6 +6,8 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 require('dotenv').config();
 
+const Cert = require("../model/Cert");
+
 // nodemailer 설정
 const smtpTransport = nodemailer.createTransport({
   service: "gmail",
@@ -24,7 +26,44 @@ router.post("/send", async (req, res, next) => {
 
   let authNum = Math.random().toString().substr(2, 6);
   const hashAuth = await bcrypt.hash(authNum, 12);
-  res.cookie("hashAuth", hashAuth, { maxAge: 300000 }); //유지시간 5분
+  //res.cookie("hashAuth", hashAuth, { maxAge: 300000 }); //유지시간 5분
+
+  const newCert = new Cert({
+    email: readMail,
+    hashAuth: hashAuth,
+  })
+  Cert.findOne({email: readMail}).then((certy)=>{
+    console.log(certy);
+
+    if(certy){
+      certy.updateOne({
+        hashAuth: hashAuth
+      }).then(()=>{
+        res.json({result: true, message: "update success"});
+      }).catch(()=>{
+        res.json({ result: false, message: "not update hashAuth"});
+      })
+    }
+    else{ // 중복없으면 save
+      newCert.save().then((data)=> {
+        res.json({result: true, data: data});
+      }).catch(()=>{
+        res.json({ result: false, message: "not create hashAuth"});
+      })
+    }
+  }).catch(()=>{
+    res.json({ result: false, message: "not create hashAuth"});
+  })
+  
+
+  // Cert.create({
+  //   email:readMail, 
+  //   hashAuth:hashAuth
+  // }).then((data)=>{
+  //   res.json(data);
+  // }).catch(() => {
+  //   res.json({ result: false, message: "not create hashAuth"});
+  // });
 
   const mailOptions = {
     from: process.env.GMAIL_USER,
@@ -67,25 +106,26 @@ router.post("/send", async (req, res, next) => {
 // 이메일 인증
 router.post("/cert", async (req, res, next) => {
   const CEA = req.body.authcode;
+  const email = req.body.mail;
   const S_CEA = CEA.toString();
-  console.log(S_CEA,typeof(S_CEA));
-
-  const hashAuth = req.cookies.hashAuth;
   
-  if(hashAuth){
-    try {
-        if (bcrypt.compareSync(S_CEA, hashAuth)) {
+  await Cert.findOne({
+    email: email,
+  }).then((data) => {
+    try{
+        if (bcrypt.compareSync(S_CEA, data.hashAuth)) {
           res.json({ result: true });
-        } else {
-            res.json({ result: false, message: "인증번호 오류" });
+        } 
+        else {
+          res.json({ result: false, message: "인증번호 오류" });
         }
-    } catch (err) {
-        res.json({ result: false, message: "요청 오류"});
     }
-  }
-  else{
-    res.json({ result: false, message: "hashAuth 없음" });
-  }
+    catch{
+      res.json({ result: false, message: "hashAuth 없음" });
+    }
+  }).catch((err) => {
+    res.json({ result: false, message: "hashAuth 이상" });
+  });
 });
 
 module.exports = router;
