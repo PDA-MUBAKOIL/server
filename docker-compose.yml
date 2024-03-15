@@ -1,0 +1,33 @@
+version: "3.7"
+
+# sh 'docker run --name express-prod -d -p 8080:3001 --restart=on-failure --network=mubakoil-prod express'
+services:
+  mongo:
+    container_name: mongodb
+    build:
+      context: ./
+      dockerfile: Dockerfile.mongo
+    image: mongodb
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ROOT_NAME
+      MONGO_INITDB_ROOT_PASSWORD: ROOT_PASSWORD
+    volumes:
+      - "./data:/data/db"
+    networks:
+      - mubakoil-net
+
+  express:
+    container_name: express
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: express
+    ports:
+      - "8080:3001"
+    networks:
+      - mubakoil-net
+
+networks:
+  mubakoil-net:
+    name: mubakoil-net

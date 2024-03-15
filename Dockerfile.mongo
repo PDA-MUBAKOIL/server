@@ -1,0 +1,6 @@
+FROM mongo:6.0.13
+WORKDIR /app
+
+COPY dump.sh /app/
+
+ENTRYPOINT ["./dump.sh"]
